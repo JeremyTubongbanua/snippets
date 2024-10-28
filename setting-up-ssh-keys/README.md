@@ -71,12 +71,12 @@ git config --global user.signingkey ~/.ssh/id_ed25519.pub
 git config --global commit.gpgsign true
 ```
 
-9. Lastly, set your name and email
+9. Set your name and email
 
 ```bash
 git config --global user.name "Your Name"
 git config --global user.email "email@email.com"
-```bash
+```
 
 Example:
 
