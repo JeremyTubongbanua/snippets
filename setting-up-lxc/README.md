@@ -1,4 +1,4 @@
-# setting-up-lxc-container
+# setting-up-lxc
 
 Here is how I set up my Linux containers upon setup
 
