@@ -1,0 +1,87 @@
+{
+  "roots": [
+    "hybrid"
+  ],
+  "packages": [
+    {
+      "name": "hybrid",
+      "version": "0.1.0",
+      "dependencies": [
+        "cryptography",
+        "ffi",
+        "pqcrypto"
+      ],
+      "devDependencies": [
+        "lints"
+      ]
+    },
+    {
+      "name": "pqcrypto",
+      "version": "0.1.0",
+      "dependencies": [
+        "pointycastle"
+      ]
+    },
+    {
+      "name": "lints",
+      "version": "6.1.0",
+      "dependencies": []
+    },
+    {
+      "name": "ffi",
+      "version": "2.2.0",
+      "dependencies": []
+    },
+    {
+      "name": "cryptography",
+      "version": "2.9.0",
+      "dependencies": [
+        "collection",
+        "crypto",
+        "ffi",
+        "meta",
+        "typed_data"
+      ]
+    },
+    {
+      "name": "pointycastle",
+      "version": "4.0.0",
+      "dependencies": [
+        "collection",
+        "convert"
+      ]
+    },
+    {
+      "name": "typed_data",
+      "version": "1.4.0",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
+      "name": "meta",
+      "version": "1.18.2",
+      "dependencies": []
+    },
+    {
+      "name": "crypto",
+      "version": "3.0.7",
+      "dependencies": [
+        "typed_data"
+      ]
+    },
+    {
+      "name": "collection",
+      "version": "1.19.1",
+      "dependencies": []
+    },
+    {
+      "name": "convert",
+      "version": "3.1.2",
+      "dependencies": [
+        "typed_data"
+      ]
+    }
+  ],
+  "configVersion": 1
+}

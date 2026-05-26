@@ -1,0 +1,20 @@
+name: hybrid
+description: "Hybrid X25519 + ML-KEM-768 key exchange: cryptography package (X25519) + pqcrypto (ML-KEM-768) + OpenSSL 3.6 (reference)."
+version: 0.1.0
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  cryptography: ^2.7.0
+  ffi: ^2.1.0
+  pqcrypto: ^0.1.0
+
+dev_dependencies:
+  lints: ^6.0.0
+
+dependency_overrides:
+  pqcrypto:
+    git:
+      url: https://github.com/JeremyTubongbanua/pqcrypto
+      ref: 4572b3b
