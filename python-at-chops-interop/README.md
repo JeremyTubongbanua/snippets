@@ -1,8 +1,101 @@
 # python-at-chops-interop
 
-Cross-language interoperability tests between Python (OpenSSL 3 via `ctypes`) and Dart (`at_chops 3.2.x` FFI) for post-quantum algorithms.
+Cross-language interoperability tests between Python and Dart (`at_chops 3.2.x`) for post-quantum algorithms: XWing KEM (`draft-connolly-cfrg-xwing-kem-10`) and ML-DSA-65 (FIPS 204).
 
-Both sides use the same underlying `libcrypto.dylib` (OpenSSL 3.6.2).
+---
+
+## Test 3 — Full matrix (`matrix_server.py` + `dart_client/bin/matrix_client.dart`)
+
+Tests all 4 × 4 implementation combinations for both algorithms in a single connection.
+
+| Side  | Implementations              |
+|-------|------------------------------|
+| Python | `pure_python`, `openssl_ffi` |
+| Dart   | `pure_dart`, `dart_ffi`      |
+
+Python uses [`mlkem`](https://pypi.org/project/mlkem/) and [`dilithium-py`](https://pypi.org/project/dilithium-py/) for pure-Python, and OpenSSL 3 via `ctypes` for FFI. Dart uses `XWingPureDartAlgo`/`MlDsa65PureDartAlgo` and `XWingFfiAlgo`/`MlDsa65FfiAlgo` from `at_chops`.
+
+### Setup
+
+```
+cd ~/GitHub/snippets/python-at-chops-interop
+python3 -m venv .venv
+.venv/bin/pip install mlkem dilithium-py
+```
+
+### Run
+
+Terminal 1:
+```
+cd ~/GitHub/snippets/python-at-chops-interop
+.venv/bin/python matrix_server.py
+```
+
+Terminal 2:
+```
+cd ~/GitHub/snippets/python-at-chops-interop/dart_client
+dart run bin/matrix_client.dart
+```
+
+### Output
+
+```
+[dart] libcrypto: /opt/homebrew/lib/libcrypto.dylib
+[dart] connecting to 127.0.0.1:9878 ...
+[dart] connected
+
+[dart] xwing  ✓  py=pure_python  dart=pure_dart  ss=3222823abef1d182...
+[dart] xwing  ✓  py=pure_python  dart=dart_ffi  ss=4a1119e15b5abfb6...
+[dart] xwing  ✓  py=openssl_ffi  dart=pure_dart  ss=53f44388eea03594...
+[dart] xwing  ✓  py=openssl_ffi  dart=dart_ffi  ss=0e596dbd2b4e96ef...
+
+[dart] mldsa65 py→dart ✓  dart→py ✓  py=pure_python  dart=pure_dart
+[dart] mldsa65 py→dart ✓  dart→py ✓  py=pure_python  dart=dart_ffi
+[dart] mldsa65 py→dart ✓  dart→py ✓  py=openssl_ffi  dart=pure_dart
+[dart] mldsa65 py→dart ✓  dart→py ✓  py=openssl_ffi  dart=dart_ffi
+
+[dart] session complete
+```
+
+```
+============================================================
+XWing KEM matrix (Python generates keypair, Dart encapsulates)
+============================================================
+  ✓  py=pure_python  dart=pure_dart   ss=3222823abef1d182...
+  ✓  py=pure_python  dart=dart_ffi   ss=4a1119e15b5abfb6...
+  ✓  py=openssl_ffi  dart=pure_dart   ss=53f44388eea03594...
+  ✓  py=openssl_ffi  dart=dart_ffi   ss=0e596dbd2b4e96ef...
+
+============================================================
+ML-DSA-65 matrix (both directions per combo)
+============================================================
+  py→dart ✓  dart→py ✓   py=pure_python  dart=pure_dart
+  py→dart ✓  dart→py ✓   py=pure_python  dart=dart_ffi
+  py→dart ✓  dart→py ✓   py=openssl_ffi  dart=pure_dart
+  py→dart ✓  dart→py ✓   py=openssl_ffi  dart=dart_ffi
+
+============================================================
+SUMMARY
+============================================================
+
+XWing KEM:
+  ✓  py=pure_python  × dart=pure_dart
+  ✓  py=pure_python  × dart=dart_ffi
+  ✓  py=openssl_ffi  × dart=pure_dart
+  ✓  py=openssl_ffi  × dart=dart_ffi
+
+ML-DSA-65:
+  py→dart ✓  dart→py ✓   py=pure_python  × dart=pure_dart
+  py→dart ✓  dart→py ✓   py=pure_python  × dart=dart_ffi
+  py→dart ✓  dart→py ✓   py=openssl_ffi  × dart=pure_dart
+  py→dart ✓  dart→py ✓   py=openssl_ffi  × dart=dart_ffi
+
+ALL PASS
+```
+
+All 16 combinations pass across both algorithms.
+
+---
 
 ---
 
