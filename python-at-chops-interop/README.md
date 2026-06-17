@@ -1,10 +1,14 @@
 # python-at-chops-interop
 
-XWing interoperability test between Python (OpenSSL 3 via `ctypes`) and Dart (`at_chops 3.2.x` FFI).
+Cross-language interoperability tests between Python (OpenSSL 3 via `ctypes`) and Dart (`at_chops 3.2.x` FFI) for post-quantum algorithms.
 
-Both sides implement `draft-connolly-cfrg-xwing-kem-10` (ML-KEM-768 + X25519) using the same underlying `libcrypto.dylib` (OpenSSL 3.6.2).
+Both sides use the same underlying `libcrypto.dylib` (OpenSSL 3.6.2).
 
-## Protocol
+---
+
+## Test 1 — XWing KEM (`server.py` + `dart_client/bin/client.dart`)
+
+Implements `draft-connolly-cfrg-xwing-kem-10` (ML-KEM-768 + X25519).
 
 ```
 Python server                          Dart client
@@ -18,26 +22,24 @@ Python server                          Dart client
      |---- "OK\n" ------------------------->|
 ```
 
-- **Python server**: generates the XWing key pair, sends the public key, decapsulates the ciphertext, decrypts the message.
+- **Python server**: generates the XWing key pair, sends the public key, decapsulates the ciphertext, decrypts the AES-256-GCM message.
 - **Dart client**: receives the public key, encapsulates to derive the shared secret, encrypts a message with AES-256-GCM, sends ciphertext.
 
-## Run
+### Run
 
-Terminal 1 — start the server:
-
+Terminal 1:
 ```
 cd ~/GitHub/snippets/python-at-chops-interop
 python3 server.py
 ```
 
-Terminal 2 — run the client:
-
+Terminal 2:
 ```
 cd ~/GitHub/snippets/python-at-chops-interop/dart_client
 dart run bin/client.dart
 ```
 
-## Output
+### Output
 
 ```
 [server] generating X-Wing key pair ...
@@ -70,3 +72,92 @@ dart run bin/client.dart
 ```
 
 Both sides derive the same shared secret (`8d4a19a1...`), confirming cross-language XWing interoperability.
+
+---
+
+## Test 2 — ML-DSA-65 signatures (`mldsa_interop.py` + `dart_client/bin/mldsa_interop.dart`)
+
+Implements FIPS 204 (ML-DSA-65). Tests both directions in a single connection.
+
+```
+Dart client                            Python server
+     |                                      |
+     |--- [4B][pk 1952B] ----------------->|
+     |--- [4B][sig 3309B] ---------------->|  Round 1:
+     |--- [4B][message] ----------------->|  Dart signs,
+     |                                      |  Python verifies
+     |<-- "OK\n" --------------------------|
+     |                                      |
+     |<-- [4B][pk 1952B] ------------------|
+     |<-- [4B][sig 3309B] -----------------|  Round 2:
+     |<-- [4B][message] ------------------|  Python signs,
+     |                                      |  Dart verifies
+     |--- "OK\n" ------------------------->|
+```
+
+- **Dart client**: generates a key pair, signs a message, sends to Python; then receives Python's public key + signature, verifies.
+- **Python server**: verifies Dart's signature; generates its own key pair, signs a message, sends to Dart.
+
+Key/signature sizes:
+| Field      | Size    |
+|------------|---------|
+| Public key | 1952 B  |
+| Secret key | 4032 B  |
+| Signature  | 3309 B  |
+
+### Run
+
+Terminal 1:
+```
+cd ~/GitHub/snippets/python-at-chops-interop
+python3 mldsa_interop.py
+```
+
+Terminal 2:
+```
+cd ~/GitHub/snippets/python-at-chops-interop/dart_client
+dart run bin/mldsa_interop.dart
+```
+
+### Output
+
+```
+[dart] libcrypto loaded from: /opt/homebrew/lib/libcrypto.dylib
+[dart] connecting to 127.0.0.1:9877 ...
+[dart] connected
+
+[dart] === Round 1: Dart signs, Python verifies ===
+[dart] generated public key (1952 B): c5a0c93ff967ea00ac086a6e86193bdd677aadae0db6faf748a0ceddf662a048...
+[dart] signature (3309 B): fbec8e41549343ce65c619202a2169a2c3fcfc01d413a75dce3266bbfea83d96...
+[dart] message: Hello from Dart ML-DSA-65 FFI (at_chops 3.2.x)!
+[dart] sent public key + signature + message
+[dart] Python verify response: OK
+
+[dart] === Round 2: Python signs, Dart verifies ===
+[dart] received public key (1952 B): ff7969586cb7a4d68a0cf4ecc05c06feabcf953da7899809661b1005a06b83d1...
+[dart] received signature  (3309 B): 5153e691a8da2c89ba4ad53fa0bdccafe302c511cb14feb581b70791a63eca9d...
+[dart] received message:   Hello from Python ML-DSA-65 (OpenSSL 3 ctypes)!
+[dart] verify result: true
+
+[dart] SUCCESS — both directions verified correctly
+```
+
+```
+[py-server] listening on 127.0.0.1:9877
+[py-server] connection from ('127.0.0.1', 58767)
+
+[py-server] === Round 1: Dart signs, Python verifies ===
+[py-server] received public key (1952 B): c5a0c93ff967ea00ac086a6e86193bdd677aadae0db6faf748a0ceddf662a048...
+[py-server] received signature  (3309 B): fbec8e41549343ce65c619202a2169a2c3fcfc01d413a75dce3266bbfea83d96...
+[py-server] received message:   Hello from Dart ML-DSA-65 FFI (at_chops 3.2.x)!
+[py-server] verify result: True
+
+[py-server] === Round 2: Python signs, Dart verifies ===
+[py-server] generated public key (1952 B): ff7969586cb7a4d68a0cf4ecc05c06feabcf953da7899809661b1005a06b83d1...
+[py-server] signature (3309 B): 5153e691a8da2c89ba4ad53fa0bdccafe302c511cb14feb581b70791a63eca9d...
+[py-server] message: Hello from Python ML-DSA-65 (OpenSSL 3 ctypes)!
+[py-server] Dart verify response: OK
+[py-server] SUCCESS — both directions verified correctly
+```
+
+Both directions verify correctly, confirming cross-language ML-DSA-65 interoperability.
