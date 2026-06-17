@@ -1,0 +1,19 @@
+name: dart_client
+description: XWing interop test — Dart client using at_chops XWingFfiAlgo
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  at_chops:
+    path: /Users/jeremytubongbanua/GitHub/at_client_sdk/trunk/packages/at_chops
+  ffi: ^2.1.0
+  async: ^2.9.0
+
+dependency_overrides:
+  at_commons:
+    path: /Users/jeremytubongbanua/GitHub/at_client_sdk/trunk/packages/at_commons
+  at_utils:
+    path: /Users/jeremytubongbanua/GitHub/at_client_sdk/trunk/packages/at_utils
