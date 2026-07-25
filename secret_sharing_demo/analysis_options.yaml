@@ -1,0 +1,11 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  errors:
+    # secret_sharing/ lives under at_client's lib/src/ (unexported while
+    # @experimental) - this demo has no other way to reach it, and every
+    # symbol in it is marked @experimental for the same reason.
+    implementation_imports: ignore
+    experimental_member_use: ignore
+    # bin/00_..., bin/01_..., etc: numbered on purpose, for run order.
+    file_names: ignore

@@ -1,0 +1,38 @@
+name: secret_sharing_demo
+description: >
+  Runnable, step-by-step demo of the at_client_sdk secret-sharing substrate
+  (WP-SS) - pairwise, PQ-sealed secret exchange between APKAM keypairs of the
+  same atSign - against a real atServer.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+# secret_sharing/ is experimental and not yet exported from at_client's public
+# barrel file, so this depends directly on a local checkout of the branch
+# that has it (jt/wp-ss). Update this path if that branch moves or the
+# feature lands on trunk and gets published normally.
+dependencies:
+  args: ^2.6.0
+  at_chops:
+    path: /Users/jeremytubongbanua/GitHub/atsign/at_client_sdk/jt/wp-ss/packages/at_chops
+  at_cli_commons:
+    path: /Users/jeremytubongbanua/GitHub/atsign/at_client_sdk/jt/wp-ss/packages/at_cli_commons
+  at_client:
+    path: /Users/jeremytubongbanua/GitHub/atsign/at_client_sdk/jt/wp-ss/packages/at_client
+
+dev_dependencies:
+  lints: ^6.0.0
+
+# at_client/at_cli_commons declare each other (and at_chops) as hosted
+# version constraints; without overrides pub refuses to mix a path source in
+# for one of them while a hosted source is pulled in transitively for the
+# same package. Force the whole graph onto the local path copies.
+dependency_overrides:
+  at_chops:
+    path: /Users/jeremytubongbanua/GitHub/atsign/at_client_sdk/jt/wp-ss/packages/at_chops
+  at_cli_commons:
+    path: /Users/jeremytubongbanua/GitHub/atsign/at_client_sdk/jt/wp-ss/packages/at_cli_commons
+  at_client:
+    path: /Users/jeremytubongbanua/GitHub/atsign/at_client_sdk/jt/wp-ss/packages/at_client
